@@ -20,6 +20,7 @@ GIT_REPO = 'mc_resourcepack'
 GIT_BRANCH = 'soundpack'
 
 VERSION_RE = r"<VERSION>([\d.]+)</VERSION>"
+VERSION_DESC_RE = r"<VERSION_DESC>(.*)</VERSION_DESC>"
 
 def check_os(success_os=['nt']):
     if os.name not in success_os:
@@ -30,24 +31,52 @@ def is_resource_pack_installed():
     return os.path.exists(os.path.join(RESOURCE_PACK_PATH, RESOURCE_PACK_NAME))
 
 def get_local_version():
+    # get version from local file
     try:
         with open(os.path.join(RESOURCE_PACK_PATH, RESOURCE_PACK_NAME, "version"), "r") as f:
-            version_re = re.search(VERSION_RE, f.read())
-            version = version_re.group(1)
-            return float(version)
+            local_file = f.read()
     except:
         return None
+    
+    # get version from local file
+    version = None
+    try:
+        version = re.search(VERSION_RE, local_file).group(1)
+    except:
+        pass
+    # get version description from local file
+    version_desc = None
+    try:
+        version_desc = re.search(VERSION_DESC_RE, local_file).group(1)
+    except:
+        version_desc = "No description."
+    
+    return float(version), str(version_desc)
 
 def get_last_version():
+    # get version from github
     req_url = f"https://raw.githubusercontent.com/{GIT_NAME}/{GIT_REPO}/{GIT_BRANCH}/version"
     try:
         response = requests.get(req_url, timeout=TIMEOUT)
         response.raise_for_status()
-        version_re = re.search(VERSION_RE, response.text)
-        version = version_re.group(1)
-        return float(version)
+        
     except:
         return None
+    
+    # get version from response
+    version = None
+    try:
+        version = re.search(VERSION_RE, response.text).group(1)
+    except:
+        pass
+    # get version description from response
+    version_desc = None
+    try:
+        version_desc = re.search(VERSION_DESC_RE, response.text).group(1)
+    except:
+        version_desc = "No description."
+    
+    return float(version), str(version_desc)
 
 def remove_local_resource_pack():
     print("Removing ResourcePack . . .")
@@ -140,10 +169,10 @@ def press_enter_to_continue():
     input("Press [Enter] to continue . . .")
 
 def get_update_str():
-    if get_local_version() == None or get_last_version() == None:
+    if get_local_version()[0] == None or get_last_version()[0] == None:
         return "Failed to get version info. Check your internet connection . . ."
     
-    if get_last_version() > get_local_version():
+    if get_last_version()[0] > get_local_version()[0]:
         return "There is a new version! Press [1] to install it."
     else:
         return "You are using the latest version!"
@@ -175,17 +204,17 @@ run_as_admin()
 while True:
     os.system("cls")
     print(f"{PROGRAM_NAME}")
-    print("===================================")
+    print("==========================================================")
     if is_resource_pack_installed():
         if get_local_version() == None or get_last_version() == None:
-            print("Failed to get version info. Check your internet connection . . .")
+            print(" Failed to get version info. Check your internet connection . . .")
         else:
-            print(f"Local version: v{get_local_version()}")
-            print(f"Last version: v{get_last_version()}")
-            print(get_update_str())
+            print(f" Local version | v{get_local_version()[0]} [{get_local_version()[1]}]")
+            print(f"  Last version | v{get_last_version()[0]} [{get_last_version()[1]}]")
+            print(f" {get_update_str()}")
     else:
-        print("ResourcePack is not installed. Press key [1] to install.")
-    print("===================================")
+        print(" ResourcePack is not installed. Press key [1] to install.")
+    print("==========================================================")
     if is_resource_pack_installed():
         print("1. Update/Re-Install ResourcePack")
     else:
@@ -204,7 +233,7 @@ while True:
             
             old_version = get_local_version()
             if update_resource_pack():
-                print(f"ResourcePack Update successfully ({old_version}) -> ({get_local_version()}).", end="\n\n")
+                print(f"ResourcePack Update successfully (v{old_version[0]}) -> (v{get_local_version()[0]}).", end="\n\n")
             else:
                 print("ResourcePack Update failed.", end="\n\n")
             press_enter_to_continue()
@@ -216,7 +245,7 @@ while True:
                 continue
             
             if install_local_resource_pack():
-                print(f"ResourcePack installed successfully ({get_local_version()}).", end="\n\n")
+                print(f"ResourcePack installed successfully (v{get_local_version()[0]}).", end="\n\n")
             else:
                 print("ResourcePack installation failed.", end="\n\n")
             press_enter_to_continue()
