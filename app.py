@@ -1,9 +1,9 @@
 import os
-import sys
 import re
 import requests
-import ctypes
 import shutil
+import ctypes
+import sys
 
 # minecraft resource pack auto updater
 
@@ -155,21 +155,22 @@ def is_admin():
 def run_as_admin():
     if not is_admin():
         print("Requesting admin privileges...")
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
-        sys.exit(0)
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+        sys.exit()
 
 # check os
 if check_os(['nt']) == False:
     print("This program is only available for Windows.")
+    press_enter_to_continue()
     os._exit(1)
 
-# check admin privileges
+# request admin privileges
 run_as_admin()
 
 # run program
 while True:
     os.system("cls")
-    print("Minecraft ResourcePack Auto Updater")
+    print("ResourcePack Auto Updater v0.1")
     print("===================================")
     if is_resource_pack_installed():
         print(f"Local version: {get_local_version()}")
@@ -178,8 +179,12 @@ while True:
     else:
         print("ResourcePack is not installed. Press key [1] to install.")
     print("===================================")
-    print("1. Install/Update ResourcePack")
-    print("2. Remove ResourcePack")
+    if is_resource_pack_installed():
+        print("1. Update/Re-Install ResourcePack")
+    else:
+        print("1. Install ResourcePack")
+    if is_resource_pack_installed():
+        print("2. Remove ResourcePack")
     print("3. Exit")
     user_input = print_user_input()
     
@@ -209,7 +214,7 @@ while True:
                 print("ResourcePack installation failed.", end="\n\n")
             press_enter_to_continue()
             
-    elif user_input == '2':
+    elif user_input == '2':        
         if print_user_confirm("Do you want to remove the ResourcePack?") == False:
             print("ResourcePack removal canceled.", end="\n\n")
             press_enter_to_continue()
