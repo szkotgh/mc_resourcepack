@@ -7,6 +7,8 @@ import sys
 
 # minecraft resource pack auto updater
 
+PROGRAM_NAME = "Resourcepack Auto Updater v0.1"
+
 TIMEOUT = 5
 
 USER_PATH = os.path.expanduser("~")
@@ -163,6 +165,8 @@ if check_os(['nt']) == False:
     print("This program is only available for Windows.")
     press_enter_to_continue()
     os._exit(1)
+    
+os.system(f"title {PROGRAM_NAME}")
 
 # request admin privileges
 run_as_admin()
@@ -170,12 +174,15 @@ run_as_admin()
 # run program
 while True:
     os.system("cls")
-    print("ResourcePack Auto Updater v0.1")
+    print(f"{PROGRAM_NAME}")
     print("===================================")
     if is_resource_pack_installed():
-        print(f"Local version: {get_local_version()}")
-        print(f"Last version: {get_last_version()}")
-        print(get_update_str())
+        if get_local_version() == None or get_last_version() == None:
+            print("Failed to get version info. Check your internet connection . . .")
+        else:
+            print(f"Local version: v{get_local_version()}")
+            print(f"Last version: v{get_last_version()}")
+            print(get_update_str())
     else:
         print("ResourcePack is not installed. Press key [1] to install.")
     print("===================================")
