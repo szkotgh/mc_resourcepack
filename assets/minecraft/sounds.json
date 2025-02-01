@@ -1,0 +1,102 @@
+{
+  "random.fuse": {
+    "sounds": [
+      {
+        "name": "random/fuse",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+
+  "entity.arrow.shoot": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "entity/arrow/shoot",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.firework_rocket.launch": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "entity/firework_rocket/launch",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.generic.explode": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "entity/generic/explode",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.minecart.riding": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "entity/minecart/riding",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.minecart.inside": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "entity/minecart/inside",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.minecart.inside.underwater": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "entity/minecart/underwater",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.player.death": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "entity/player/death",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+
+  "entity.creeper.primed": {
+    "sounds": [
+      {
+        "name": "mob/creeper/primed",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  },
+  "entity.skeleton.shoot": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "mob/skeleton/shoot",
+        "pitch": 1.0,
+        "volume": 1.0
+      }
+    ]
+  }
+}
