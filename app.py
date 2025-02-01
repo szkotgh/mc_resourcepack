@@ -7,20 +7,19 @@ import sys
 
 # minecraft resource pack auto updater
 
-PROGRAM_NAME = "Resourcepack Auto Updater v0.1"
+PROGRAM_NAME = "Resourcepack Auto Updater v0.3"
 
+GIT_NAME = 'szkotgh'
+GIT_REPO = 'mc_resourcepack'
+GIT_BRANCH = 'soundpack'
 TIMEOUT = 5
 
 USER_PATH = os.path.expanduser("~")
 RESOURCE_PACK_PATH = os.path.join(USER_PATH, "AppData", "Roaming", ".minecraft", "resourcepacks")
 RESOURCE_PACK_NAME = "Geon's_Sound_Modify"
 
-GIT_NAME = 'szkotgh'
-GIT_REPO = 'mc_resourcepack'
-GIT_BRANCH = 'soundpack'
-
 VERSION_RE = r"<VERSION>([\d.]+)</VERSION>"
-VERSION_DESC_RE = r"<VERSION_DESC>(.*)</VERSION_DESC>"
+VERSION_DESC_RE = r"<VERSION_DESC>(.*?)</VERSION_DESC>"
 
 def check_os(success_os=['nt']):
     if os.name not in success_os:
@@ -30,30 +29,36 @@ def check_os(success_os=['nt']):
 def is_resource_pack_installed():
     return os.path.exists(os.path.join(RESOURCE_PACK_PATH, RESOURCE_PACK_NAME))
 
-def get_local_version():
-    # get version from local file
-    try:
-        with open(os.path.join(RESOURCE_PACK_PATH, RESOURCE_PACK_NAME, "version"), "r") as f:
-            local_file = f.read()
-    except:
-        return None
-    
-    # get version from local file
+def find_version_in_str(string):
     version = None
     try:
-        version = re.search(VERSION_RE, local_file).group(1)
+        version = float(re.search(VERSION_RE, string).group(1))
     except:
         pass
-    # get version description from local file
+    return version
+
+def find_version_desc_in_str(string):
     version_desc = None
     try:
-        version_desc = re.search(VERSION_DESC_RE, local_file).group(1)
+        version_desc = re.search(VERSION_DESC_RE, string).group(1)
     except:
-        version_desc = "No description."
+        version_desc = str("No description")
+    return version_desc
+
+def get_local_version_info():
+    # get version from local file
+    try:
+        with open(os.path.join(RESOURCE_PACK_PATH, RESOURCE_PACK_NAME, "version"), "r", encoding='utf-8') as f:
+            local_file = f.read()
+    except Exception as e:
+        return None, None
+    
+    version = find_version_in_str(local_file)
+    version_desc = find_version_desc_in_str(local_file)
     
     return float(version), str(version_desc)
 
-def get_last_version():
+def get_last_version_info():
     # get version from github
     req_url = f"https://raw.githubusercontent.com/{GIT_NAME}/{GIT_REPO}/{GIT_BRANCH}/version"
     try:
@@ -61,20 +66,10 @@ def get_last_version():
         response.raise_for_status()
         
     except:
-        return None
+        return None, None
     
-    # get version from response
-    version = None
-    try:
-        version = re.search(VERSION_RE, response.text).group(1)
-    except:
-        pass
-    # get version description from response
-    version_desc = None
-    try:
-        version_desc = re.search(VERSION_DESC_RE, response.text).group(1)
-    except:
-        version_desc = "No description."
+    version = find_version_in_str(response.text)
+    version_desc = find_version_desc_in_str(response.text)
     
     return float(version), str(version_desc)
 
@@ -169,10 +164,10 @@ def press_enter_to_continue():
     input("Press [Enter] to continue . . .")
 
 def get_update_str():
-    if get_local_version()[0] == None or get_last_version()[0] == None:
+    if get_local_version_info()[0] == None or get_last_version_info()[0] == None:
         return "Failed to get version info. Check your internet connection . . ."
     
-    if get_last_version()[0] > get_local_version()[0]:
+    if get_last_version_info()[0] > get_local_version_info()[0]:
         return "There is a new version! Press [1] to install it."
     else:
         return "You are using the latest version!"
@@ -206,11 +201,11 @@ while True:
     print(f"{PROGRAM_NAME}")
     print("==========================================================")
     if is_resource_pack_installed():
-        if get_local_version() == None or get_last_version() == None:
+        if get_local_version_info() == None or get_last_version_info() == None:
             print(" Failed to get version info. Check your internet connection . . .")
         else:
-            print(f" Local version | v{get_local_version()[0]} [{get_local_version()[1]}]")
-            print(f"  Last version | v{get_last_version()[0]} [{get_last_version()[1]}]")
+            print(f" Local version | v{get_local_version_info()[0]} - {get_local_version_info()[1]}")
+            print(f"  Last version | v{get_last_version_info()[0]} - {get_last_version_info()[1]}")
             print(f" {get_update_str()}")
     else:
         print(" ResourcePack is not installed. Press key [1] to install.")
@@ -231,9 +226,9 @@ while True:
                 press_enter_to_continue()
                 continue
             
-            old_version = get_local_version()
+            old_version = get_local_version_info()
             if update_resource_pack():
-                print(f"ResourcePack Update successfully (v{old_version[0]}) -> (v{get_local_version()[0]}).", end="\n\n")
+                print(f"ResourcePack Update successfully (v{old_version[0]}) -> (v{get_local_version_info()[0]}).", end="\n\n")
             else:
                 print("ResourcePack Update failed.", end="\n\n")
             press_enter_to_continue()
@@ -245,7 +240,7 @@ while True:
                 continue
             
             if install_local_resource_pack():
-                print(f"ResourcePack installed successfully (v{get_local_version()[0]}).", end="\n\n")
+                print(f"ResourcePack installed successfully (v{get_local_version_info()[0]}).", end="\n\n")
             else:
                 print("ResourcePack installation failed.", end="\n\n")
             press_enter_to_continue()
