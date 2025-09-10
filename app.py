@@ -6,8 +6,8 @@ import ctypes
 import sys
 
 # minecraft resource pack auto updater
-
-PROGRAM_NAME = "Resourcepack Auto Updater v0.3"
+PROGRAM_VERSION = "0.3"
+PROGRAM_NAME = f"[ RAU v{PROGRAM_VERSION} ]"
 
 GIT_NAME = 'szkotgh'
 GIT_REPO = 'mc_resourcepack'
@@ -105,16 +105,18 @@ def install_local_resource_pack():
         ## write zip file
         with open(f"{resource_pack_zip_name}", "wb") as f:
             f.write(response.content)
-    except:
-        print("! Failed to download ResourcePack.")
+    except Exception as e:
+        print(f"! Failed to download ResourcePack: {e}")
         return False
 
     print("- Extracting ResourcePack . . .")
     # extract zip file
     try:
+        if not os.path.exists(RESOURCE_PACK_PATH):
+            os.makedirs(RESOURCE_PACK_PATH)
         os.system(f"tar -xf {resource_pack_zip_name} -C {RESOURCE_PACK_PATH}")
-    except:
-        print("! Failed to extract ResourcePack.")
+    except Exception as e:
+        print(f"! Failed to extract ResourcePack: {e}")
         os.remove(f"{resource_pack_zip_name}")
         os.remove(os.path.join(RESOURCE_PACK_PATH, f"{GIT_REPO}-{GIT_BRANCH}"))
         return False
@@ -124,8 +126,8 @@ def install_local_resource_pack():
     try:
         os.rename(os.path.join(RESOURCE_PACK_PATH, f"{GIT_REPO}-{GIT_BRANCH}"), os.path.join(RESOURCE_PACK_PATH, RESOURCE_PACK_NAME))
         os.remove(f"{resource_pack_zip_name}")
-    except:
-        print("! Failed to rename ResourcePack.")
+    except Exception as e:
+        print(f"! Failed to rename ResourcePack: {e}")
         os.remove(os.path.join(RESOURCE_PACK_PATH, f"{GIT_REPO}-{GIT_BRANCH}"))
         os.remove(f"{resource_pack_zip_name}")
         return False
@@ -191,76 +193,82 @@ if check_os(['nt']) == False:
     os._exit(1)
     
 os.system(f"title {PROGRAM_NAME}")
+if __name__ == "__main__":
+    # request admin privileges
+    # run_as_admin()
 
-# request admin privileges
-run_as_admin()
-
-# run program
-while True:
-    os.system("cls")
-    print(f"{PROGRAM_NAME}")
-    print("==========================================================")
-    if is_resource_pack_installed():
-        if get_local_version_info() == None or get_last_version_info() == None:
-            print(" Failed to get version info. Check your internet connection . . .")
-        else:
-            print(f" Local version | v{get_local_version_info()[0]} - {get_local_version_info()[1]}")
-            print(f"  Last version | v{get_last_version_info()[0]} - {get_last_version_info()[1]}")
-            print(f" {get_update_str()}")
-    else:
-        print(" ResourcePack is not installed. Press key [1] to install.")
-    print("==========================================================")
-    if is_resource_pack_installed():
-        print("1. Update/Re-Install ResourcePack")
-    else:
-        print("1. Install ResourcePack")
-    if is_resource_pack_installed():
-        print("2. Remove ResourcePack")
-    print("3. Exit")
-    user_input = print_user_input()
-    
-    if user_input == '1':
-        if is_resource_pack_installed():
-            if print_user_confirm("ResourcePack is already installed. Do you want to update?") == False:
-                print("ResourcePack installation canceled.", end="\n\n")
-                press_enter_to_continue()
-                continue
-            
-            old_version = get_local_version_info()
-            if update_resource_pack():
-                print(f"ResourcePack Update successfully (v{old_version[0]}) -> (v{get_local_version_info()[0]}).", end="\n\n")
-            else:
-                print("ResourcePack Update failed.", end="\n\n")
-            press_enter_to_continue()
-            
-        else:
-            if print_user_confirm("Do you want to install the ResourcePack?") == False:
-                print("ResourcePack installation canceled.", end="\n\n")
-                press_enter_to_continue()
-                continue
-            
-            if install_local_resource_pack():
-                print(f"ResourcePack installed successfully (v{get_local_version_info()[0]}).", end="\n\n")
-            else:
-                print("ResourcePack installation failed.", end="\n\n")
-            press_enter_to_continue()
-            
-    elif user_input == '2':        
-        if print_user_confirm("Do you want to remove the ResourcePack?") == False:
-            print("ResourcePack removal canceled.", end="\n\n")
-            press_enter_to_continue()
-            continue
-        
-        if remove_local_resource_pack():
-            print("ResourcePack removed successfully.", end="\n\n")
-        else:
-            print("ResourcePack removal failed. Did you unload the resource pack?", end="\n\n")
-        press_enter_to_continue()
-    
-    elif user_input == '3':
-        print("Program terminated.")
-        press_enter_to_continue()
-        os._exit(0)
-        
-    else:
+    # run program
+    while True:
         os.system("cls")
+        print(f"{PROGRAM_NAME}")
+        print("==========================================================")
+        if is_resource_pack_installed():
+            if get_local_version_info() != None:
+                print(f" Local version | v{get_local_version_info()[0]} - {get_local_version_info()[1]}")
+            else:
+                print(f" Local version | Failed to get local version info.")
+            
+            if get_last_version_info() != None:
+                print(f"  Last version | v{get_last_version_info()[0]} - {get_last_version_info()[1]}")
+            else:
+                print(f"  Last version | Failed to get last version info.")
+
+            if get_update_str() != None:
+                print(f" {get_update_str()}")
+        else:
+            print(" ResourcePack is not installed. Press key [1] to install.")
+        print("==========================================================")
+        if is_resource_pack_installed():
+            print("1. Update/Re-Install ResourcePack")
+        else:
+            print("1. Install ResourcePack")
+        if is_resource_pack_installed():
+            print("2. Remove ResourcePack")
+        print("3. Exit")
+        user_input = print_user_input()
+        
+        if user_input == '1':
+            if is_resource_pack_installed():
+                if print_user_confirm("Do you want to update the ResourcePack?") == False:
+                    print("ResourcePack installation canceled.", end="\n\n")
+                    press_enter_to_continue()
+                    continue
+                
+                old_version = get_local_version_info()
+                if update_resource_pack():
+                    print(f"ResourcePack Update successfully (v{old_version[0]}) -> (v{get_local_version_info()[0]}).", end="\n\n")
+                else:
+                    print("ResourcePack Update failed.", end="\n\n")
+                press_enter_to_continue()
+                
+            else:
+                if print_user_confirm("Do you want to install the ResourcePack?") == False:
+                    print("ResourcePack installation canceled.", end="\n\n")
+                    press_enter_to_continue()
+                    continue
+                
+                if install_local_resource_pack():
+                    print(f"ResourcePack installed successfully (v{get_local_version_info()[0]}).", end="\n\n")
+                else:
+                    print("ResourcePack installation failed.", end="\n\n")
+                press_enter_to_continue()
+                
+        elif user_input == '2':        
+            if print_user_confirm("Do you want to remove the ResourcePack?") == False:
+                print("ResourcePack removal canceled.", end="\n\n")
+                press_enter_to_continue()
+                continue
+            
+            if remove_local_resource_pack():
+                print("ResourcePack removed successfully.", end="\n\n")
+            else:
+                print("ResourcePack removal failed. Did you unload the resource pack?", end="\n\n")
+            press_enter_to_continue()
+        
+        elif user_input == '3':
+            print("Program terminated.")
+            press_enter_to_continue()
+            os._exit(0)
+            
+        else:
+            os.system("cls")
