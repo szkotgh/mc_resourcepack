@@ -6,7 +6,7 @@ import ctypes
 import sys
 
 # minecraft resource pack auto updater
-PROGRAM_VERSION = "0.3"
+PROGRAM_VERSION = "0.5"
 PROGRAM_NAME = f"[ RAU v{PROGRAM_VERSION} ]"
 
 GIT_NAME = 'szkotgh'
@@ -195,7 +195,7 @@ if check_os(['nt']) == False:
 os.system(f"title {PROGRAM_NAME}")
 if __name__ == "__main__":
     # request admin privileges
-    # run_as_admin()
+    run_as_admin()
 
     # run program
     while True:
@@ -216,7 +216,7 @@ if __name__ == "__main__":
             if get_update_str() != None:
                 print(f" {get_update_str()}")
         else:
-            print(" ResourcePack is not installed. Press key [1] to install.")
+            print(f" '{RESOURCE_PACK_NAME}' ResourcePack is not installed. Press key [1] to install.")
         print("==========================================================")
         if is_resource_pack_installed():
             print("1. Update/Re-Install ResourcePack")
